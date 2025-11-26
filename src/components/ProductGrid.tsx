@@ -1,11 +1,11 @@
 import ProductCard from "./ProductCard";
 import watchImage from "@/assets/product-watch.png";
-import shoesImage from "@/assets/product-shoes-2.png";
-import socksImage from "@/assets/product-socks.png";
 import backpackImage from "@/assets/product-backpack.png";
-import vestImage from "@/assets/product-vest.png";
-import visorImage from "@/assets/product-visor.png";
+import shoesImage from "@/assets/product-shoes-2.png";
+import topImage from "@/assets/product-top-1.jpg";
 import bottleImage from "@/assets/product-bottle.png";
+import vestImage from "@/assets/product-vest.png";
+import beltImage from "@/assets/product-belt.png";
 import capImage from "@/assets/product-cap.png";
 
 const ProductGrid = () => {
@@ -19,22 +19,6 @@ const ProductGrid = () => {
       features: ["GPS Tracking", "Heart Rate", "Waterproof"],
     },
     {
-      id: "velocity-runner",
-      image: shoesImage,
-      name: "Velocity Runner",
-      category: "Shoes",
-      price: 189,
-      features: ["Lightweight", "Breathable", "Responsive"],
-    },
-    {
-      id: "performance-socks",
-      image: socksImage,
-      name: "Performance Socks",
-      category: "Accessories",
-      price: 28,
-      features: ["Moisture-Wicking", "Cushioned", "Anti-Blister"],
-    },
-    {
       id: "urban-runner-pack",
       image: backpackImage,
       name: "Urban Runner Pack",
@@ -43,20 +27,20 @@ const ProductGrid = () => {
       features: ["Hydration Compatible", "Reflective", "Lightweight"],
     },
     {
-      id: "storm-runner-vest",
-      image: vestImage,
-      name: "Storm Runner Vest",
-      category: "Outerwear",
-      price: 158,
-      features: ["Windproof", "Lightweight", "Packable"],
+      id: "velocity-runner",
+      image: shoesImage,
+      name: "Velocity Runner",
+      category: "Shoes",
+      price: 189,
+      features: ["Lightweight", "Breathable", "Responsive"],
     },
     {
-      id: "solar-visor",
-      image: visorImage,
-      name: "Solar Visor",
-      category: "Accessories",
-      price: 42,
-      features: ["UV Protection", "Adjustable", "Quick-Dry"],
+      id: "performance-top",
+      image: topImage,
+      name: "Performance Top",
+      category: "Apparel",
+      price: 89,
+      features: ["Moisture-Wicking", "Quick-Dry", "Breathable"],
     },
     {
       id: "hydration-bottle",
@@ -65,6 +49,22 @@ const ProductGrid = () => {
       category: "Accessories",
       price: 32,
       features: ["Soft Flask", "500ml", "Leak-Proof"],
+    },
+    {
+      id: "storm-runner-vest",
+      image: vestImage,
+      name: "Storm Runner Vest",
+      category: "Apparel",
+      price: 158,
+      features: ["Windproof", "Lightweight", "Packable"],
+    },
+    {
+      id: "running-belt",
+      image: beltImage,
+      name: "Running Belt",
+      category: "Accessories",
+      price: 45,
+      features: ["Secure Storage", "Adjustable", "Water-Resistant"],
     },
     {
       id: "trail-runner-cap",
