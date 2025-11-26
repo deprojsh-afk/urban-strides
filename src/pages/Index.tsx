@@ -2,15 +2,21 @@ import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import FilterBar from "@/components/FilterBar";
 import ProductGrid from "@/components/ProductGrid";
+import { useState } from "react";
 
 const Index = () => {
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
       <main>
         <Hero />
-        <FilterBar />
-        <ProductGrid />
+        <FilterBar 
+          activeFilters={activeFilters}
+          onFilterChange={setActiveFilters}
+        />
+        <ProductGrid filters={activeFilters} />
       </main>
       <footer className="border-t border-border py-12 px-4 lg:px-8">
         <div className="container mx-auto">
