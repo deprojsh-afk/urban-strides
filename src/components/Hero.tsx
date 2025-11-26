@@ -19,17 +19,17 @@ const Hero = () => {
         <h1 className="mb-4 text-5xl md:text-7xl lg:text-8xl font-display font-bold tracking-tighter animate-fade-in text-white drop-shadow-2xl">
           RUN YOUR
           <br />
-          <span className="bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 bg-clip-text text-transparent">RHYTHM</span>
+          <span className="text-white">RHYTHM</span>
         </h1>
         <p className="mb-8 max-w-2xl text-base md:text-lg text-white/90 font-light tracking-wide animate-slide-up drop-shadow-lg">
           Performance meets style in every stride. Discover urban running apparel
           engineered for the modern athlete.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 animate-slide-up">
-          <Button variant="hero" size="xl">
+          <Button variant="hero" size="xl" className="bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30">
             Shop Collection
           </Button>
-          <Button variant="hero-outline" size="xl">
+          <Button variant="hero-outline" size="xl" className="bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/40">
             Explore Performance
           </Button>
         </div>
