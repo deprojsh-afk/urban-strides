@@ -1,31 +1,11 @@
 import ProductCard from "./ProductCard";
-import watchImage from "@/assets/product-watch.png";
-import backpackImage from "@/assets/product-backpack.png";
-import shoesImage from "@/assets/product-shoes-2.png";
+import shoesImage from "@/assets/product-shoes-1.jpg";
+import leggingsImage from "@/assets/product-leggings-1.jpg";
 import topImage from "@/assets/product-top-1.jpg";
-import bottleImage from "@/assets/product-bottle.png";
-import vestImage from "@/assets/product-vest.png";
-import beltImage from "@/assets/product-belt.png";
-import capImage from "@/assets/product-cap.png";
+import jacketImage from "@/assets/product-jacket-1.jpg";
 
 const ProductGrid = () => {
   const products = [
-    {
-      id: "smart-runner-watch",
-      image: watchImage,
-      name: "Smart Runner Watch",
-      category: "Accessories",
-      price: 249,
-      features: ["GPS Tracking", "Heart Rate", "Waterproof"],
-    },
-    {
-      id: "urban-runner-pack",
-      image: backpackImage,
-      name: "Urban Runner Pack",
-      category: "Accessories",
-      price: 168,
-      features: ["Hydration Compatible", "Reflective", "Lightweight"],
-    },
     {
       id: "velocity-runner",
       image: shoesImage,
@@ -35,58 +15,71 @@ const ProductGrid = () => {
       features: ["Lightweight", "Breathable", "Responsive"],
     },
     {
-      id: "performance-top",
-      image: topImage,
-      name: "Performance Top",
-      category: "Apparel",
-      price: 89,
-      features: ["Moisture-Wicking", "Quick-Dry", "Breathable"],
+      id: "precision-tights",
+      image: leggingsImage,
+      name: "Precision Tights",
+      category: "Bottoms",
+      price: 98,
+      features: ["Compression", "Moisture-Wicking", "Reflective"],
     },
     {
-      id: "hydration-bottle",
-      image: bottleImage,
-      name: "Hydration Bottle",
-      category: "Accessories",
-      price: 32,
-      features: ["Soft Flask", "500ml", "Leak-Proof"],
+      id: "swift-performance-tee",
+      image: topImage,
+      name: "Swift Performance Tee",
+      category: "Tops",
+      price: 68,
+      features: ["Breathable", "Quick-Dry", "Seamless"],
+    },
+    {
+      id: "urban-shield-jacket",
+      image: jacketImage,
+      name: "Urban Shield Jacket",
+      category: "Outerwear",
+      price: 248,
+      features: ["Water-Resistant", "Packable", "Reflective"],
+    },
+    {
+      id: "sprint-elite",
+      image: shoesImage,
+      name: "Sprint Elite",
+      category: "Shoes",
+      price: 219,
+      features: ["Carbon Plate", "Lightweight", "Responsive"],
+    },
+    {
+      id: "motion-long-sleeve",
+      image: topImage,
+      name: "Motion Long Sleeve",
+      category: "Tops",
+      price: 78,
+      features: ["Thermal", "Breathable", "Anti-Odor"],
+    },
+    {
+      id: "endurance-shorts",
+      image: leggingsImage,
+      name: "Endurance Shorts",
+      category: "Bottoms",
+      price: 72,
+      features: ["Lightweight", "4-Way Stretch", "Pocket"],
     },
     {
       id: "storm-runner-vest",
-      image: vestImage,
+      image: jacketImage,
       name: "Storm Runner Vest",
-      category: "Apparel",
+      category: "Outerwear",
       price: 158,
       features: ["Windproof", "Lightweight", "Packable"],
-    },
-    {
-      id: "running-belt",
-      image: beltImage,
-      name: "Running Belt",
-      category: "Accessories",
-      price: 45,
-      features: ["Secure Storage", "Adjustable", "Water-Resistant"],
-    },
-    {
-      id: "trail-runner-cap",
-      image: capImage,
-      name: "Trail Runner Cap",
-      category: "Accessories",
-      price: 38,
-      features: ["Water-Repellent", "Breathable", "Adjustable"],
     },
   ];
 
   return (
-    <section className="py-16 px-4 lg:px-8 bg-gradient-to-b from-black/20 to-background relative overflow-hidden">
-      {/* Background subtle gradient effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-pink-500/5 pointer-events-none" />
-      
-      <div className="container mx-auto relative z-10">
-        <div className="mb-12 text-center">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold mb-3 text-white drop-shadow-lg">
+    <section className="py-16 px-4 lg:px-8">
+      <div className="container mx-auto">
+        <div className="mb-8">
+          <h2 className="text-3xl md:text-4xl font-display font-bold mb-2">
             Performance Collection
           </h2>
-          <p className="text-white/80 max-w-2xl mx-auto text-sm md:text-base">
+          <p className="text-muted-foreground">
             Engineered for urban athletes who demand style and function
           </p>
         </div>
