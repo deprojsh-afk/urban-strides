@@ -125,6 +125,12 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12">
+      <button
+        onClick={() => navigate("/")}
+        className="fixed top-8 left-8 text-2xl font-display font-bold tracking-tighter hover:opacity-80 transition-opacity"
+      >
+        STRIDE
+      </button>
       <Card className="w-full max-w-md border-border bg-card/50 backdrop-blur-sm">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-display font-bold text-center">STRIDE</CardTitle>
