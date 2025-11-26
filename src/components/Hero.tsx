@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-runners.jpg";
 
 const Hero = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="relative h-screen w-full overflow-hidden">
       {/* Background Image with Overlay */}
@@ -26,10 +29,20 @@ const Hero = () => {
           engineered for the modern athlete.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 animate-slide-up">
-          <Button variant="hero" size="xl" className="bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30">
+          <Button 
+            variant="hero" 
+            size="xl" 
+            className="bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30"
+            onClick={() => navigate("/shop")}
+          >
             Shop Collection
           </Button>
-          <Button variant="hero-outline" size="xl" className="bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/40">
+          <Button 
+            variant="hero-outline" 
+            size="xl" 
+            className="bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/40"
+            onClick={() => navigate("/technology")}
+          >
             Explore Performance
           </Button>
         </div>
