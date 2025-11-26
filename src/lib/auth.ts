@@ -48,7 +48,11 @@ export const signOut = async () => {
 };
 
 export const resetPasswordForEmail = async (email: string) => {
-  const redirectUrl = `${window.location.origin}/reset-password`;
+  // localhost인 경우에도 배포된 URL로 리다이렉트
+  const baseUrl = window.location.hostname === 'localhost' 
+    ? 'https://bb3d4af9-55a9-4487-a349-752ee3528299.lovableproject.com'
+    : window.location.origin;
+  const redirectUrl = `${baseUrl}/reset-password`;
   
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: redirectUrl,
