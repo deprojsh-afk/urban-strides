@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import { useWishlist } from "@/hooks/useWishlist";
+import { useNavigate } from "react-router-dom";
 
 interface ProductCardProps {
   id: string;
@@ -14,6 +15,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ id, image, name, category, price, features }: ProductCardProps) => {
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const navigate = useNavigate();
   const inWishlist = isInWishlist(id);
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
@@ -26,7 +28,10 @@ const ProductCard = ({ id, image, name, category, price, features }: ProductCard
   };
 
   return (
-    <Card className="group overflow-hidden border-border bg-card hover:bg-card/80 transition-all duration-500">
+    <Card 
+      className="group overflow-hidden border-border bg-card hover:bg-card/80 transition-all duration-500 cursor-pointer"
+      onClick={() => navigate(`/product/${id}`)}
+    >
       <div className="relative aspect-square overflow-hidden bg-muted">
         <img
           src={image}
