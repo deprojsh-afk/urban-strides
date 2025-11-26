@@ -82,24 +82,14 @@ const Navigation = () => {
             </Button>
 
             {user && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate("/wishlist")}
-                  className="hidden md:flex"
-                >
-                  <Heart className="h-5 w-5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate("/orders")}
-                  className="hidden md:flex"
-                >
-                  <Package className="h-5 w-5" />
-                </Button>
-              </>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/wishlist")}
+                className="hidden md:flex"
+              >
+                <Heart className="h-5 w-5" />
+              </Button>
             )}
 
             {user ? (
@@ -113,6 +103,10 @@ const Navigation = () => {
                   <DropdownMenuItem onClick={() => navigate("/profile")}>
                     <User className="mr-2 h-4 w-4" />
                     마이페이지
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/orders")}>
+                    <Package className="mr-2 h-4 w-4" />
+                    주문 내역
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
