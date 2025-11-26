@@ -8,13 +8,15 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 
 const Auth = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [showSignInPassword, setShowSignInPassword] = useState(false);
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -163,17 +165,32 @@ const Auth = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signin-password">비밀번호</Label>
-                  <Input
-                    id="signin-password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={signInData.password}
-                    onChange={(e) =>
-                      setSignInData({ ...signInData, password: e.target.value })
-                    }
-                    disabled={isLoading}
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      id="signin-password"
+                      type={showSignInPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={signInData.password}
+                      onChange={(e) =>
+                        setSignInData({ ...signInData, password: e.target.value })
+                      }
+                      disabled={isLoading}
+                      required
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSignInPassword(!showSignInPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      disabled={isLoading}
+                    >
+                      {showSignInPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading} variant="hero">
                   {isLoading ? (
@@ -220,17 +237,32 @@ const Auth = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-password">비밀번호</Label>
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={signUpData.password}
-                    onChange={(e) =>
-                      setSignUpData({ ...signUpData, password: e.target.value })
-                    }
-                    disabled={isLoading}
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      id="signup-password"
+                      type={showSignUpPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={signUpData.password}
+                      onChange={(e) =>
+                        setSignUpData({ ...signUpData, password: e.target.value })
+                      }
+                      disabled={isLoading}
+                      required
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSignUpPassword(!showSignUpPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      disabled={isLoading}
+                    >
+                      {showSignUpPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                   <p className="text-xs text-muted-foreground">최소 6자 이상</p>
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading} variant="hero">
