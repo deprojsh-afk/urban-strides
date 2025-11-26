@@ -7,7 +7,7 @@ import jacketImage from "@/assets/product-jacket-1.jpg";
 const ProductGrid = () => {
   const products = [
     {
-      id: 1,
+      id: "velocity-runner",
       image: shoesImage,
       name: "Velocity Runner",
       category: "Shoes",
@@ -15,7 +15,7 @@ const ProductGrid = () => {
       features: ["Lightweight", "Breathable", "Responsive"],
     },
     {
-      id: 2,
+      id: "precision-tights",
       image: leggingsImage,
       name: "Precision Tights",
       category: "Bottoms",
@@ -23,7 +23,7 @@ const ProductGrid = () => {
       features: ["Compression", "Moisture-Wicking", "Reflective"],
     },
     {
-      id: 3,
+      id: "swift-performance-tee",
       image: topImage,
       name: "Swift Performance Tee",
       category: "Tops",
@@ -31,7 +31,7 @@ const ProductGrid = () => {
       features: ["Breathable", "Quick-Dry", "Seamless"],
     },
     {
-      id: 4,
+      id: "urban-shield-jacket",
       image: jacketImage,
       name: "Urban Shield Jacket",
       category: "Outerwear",
@@ -39,7 +39,7 @@ const ProductGrid = () => {
       features: ["Water-Resistant", "Packable", "Reflective"],
     },
     {
-      id: 5,
+      id: "sprint-elite",
       image: shoesImage,
       name: "Sprint Elite",
       category: "Shoes",
@@ -47,7 +47,7 @@ const ProductGrid = () => {
       features: ["Carbon Plate", "Lightweight", "Responsive"],
     },
     {
-      id: 6,
+      id: "motion-long-sleeve",
       image: topImage,
       name: "Motion Long Sleeve",
       category: "Tops",
@@ -55,7 +55,7 @@ const ProductGrid = () => {
       features: ["Thermal", "Breathable", "Anti-Odor"],
     },
     {
-      id: 7,
+      id: "endurance-shorts",
       image: leggingsImage,
       name: "Endurance Shorts",
       category: "Bottoms",
@@ -63,7 +63,7 @@ const ProductGrid = () => {
       features: ["Lightweight", "4-Way Stretch", "Pocket"],
     },
     {
-      id: 8,
+      id: "storm-runner-vest",
       image: jacketImage,
       name: "Storm Runner Vest",
       category: "Outerwear",

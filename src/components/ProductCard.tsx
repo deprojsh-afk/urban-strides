@@ -1,7 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Heart } from "lucide-react";
+import { useWishlist } from "@/hooks/useWishlist";
 
 interface ProductCardProps {
+  id: string;
   image: string;
   name: string;
   category: string;
@@ -9,7 +12,19 @@ interface ProductCardProps {
   features: string[];
 }
 
-const ProductCard = ({ image, name, category, price, features }: ProductCardProps) => {
+const ProductCard = ({ id, image, name, category, price, features }: ProductCardProps) => {
+  const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const inWishlist = isInWishlist(id);
+
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (inWishlist) {
+      removeFromWishlist(id);
+    } else {
+      addToWishlist(id, name, image, price);
+    }
+  };
+
   return (
     <Card className="group overflow-hidden border-border bg-card hover:bg-card/80 transition-all duration-500">
       <div className="relative aspect-square overflow-hidden bg-muted">
@@ -25,6 +40,18 @@ const ProductCard = ({ image, name, category, price, features }: ProductCardProp
           className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0"
         >
           Quick View
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleWishlistToggle}
+          className="absolute top-4 right-4 bg-background/80 backdrop-blur-sm hover:bg-background"
+        >
+          <Heart
+            className={`h-5 w-5 transition-all ${
+              inWishlist ? "fill-primary text-primary" : "text-foreground"
+            }`}
+          />
         </Button>
       </div>
       <CardContent className="p-4">
