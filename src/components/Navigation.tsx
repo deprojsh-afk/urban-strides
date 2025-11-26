@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { signOut } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ShoppingBag, User, LogOut } from "lucide-react";
+import { Menu, X, ShoppingBag, User, LogOut, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
@@ -69,6 +69,17 @@ const Navigation = () => {
               </span>
             </Button>
 
+            {user && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/wishlist")}
+                className="hidden md:flex"
+              >
+                <Heart className="h-5 w-5" />
+              </Button>
+            )}
+
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -126,6 +137,15 @@ const Navigation = () => {
             </a>
             {user ? (
               <>
+                <button
+                  onClick={() => {
+                    navigate("/wishlist");
+                    setIsOpen(false);
+                  }}
+                  className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  위시리스트
+                </button>
                 <button
                   onClick={() => {
                     navigate("/profile");
