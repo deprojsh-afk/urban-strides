@@ -40,9 +40,12 @@ const Navigation = () => {
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <a href="/" className="text-2xl font-display font-bold tracking-tighter">
+          <button
+            onClick={() => navigate("/")}
+            className="text-2xl font-display font-bold tracking-tighter hover:opacity-80 transition-opacity"
+          >
             STRIDE
-          </a>
+          </button>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
