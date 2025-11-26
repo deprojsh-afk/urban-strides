@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useCart } from "@/hooks/useCart";
 import { signOut } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ShoppingBag, User, LogOut, Heart, Package } from "lucide-react";
@@ -16,6 +17,7 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { getTotalItems } = useCart();
   const { toast } = useToast();
 
   const handleSignOut = async () => {
@@ -72,9 +74,11 @@ const Navigation = () => {
               onClick={() => navigate("/cart")}
             >
               <ShoppingBag className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-accent text-[10px] font-bold flex items-center justify-center">
-                0
-              </span>
+              {getTotalItems() > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                  {getTotalItems()}
+                </span>
+              )}
             </Button>
 
             {user && (
