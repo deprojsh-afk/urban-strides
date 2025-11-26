@@ -59,12 +59,27 @@ const Auth = () => {
           });
         }
       } else {
-        toast({
-          title: "회원가입 성공!",
-          description: "계정이 생성되었습니다. 로그인해주세요.",
+        // 회원가입 성공 후 자동 로그인 시도
+        const { error: signInError } = await signIn({
+          email: validated.email,
+          password: validated.password,
         });
-        // Switch to sign in tab
-        document.querySelector('[value="signin"]')?.dispatchEvent(new Event('click', { bubbles: true }));
+
+        if (signInError) {
+          // 이메일 확인이 필요한 경우
+          toast({
+            title: "회원가입 완료",
+            description: "이메일을 확인한 후 로그인해주세요.",
+          });
+          document.querySelector('[value="signin"]')?.dispatchEvent(new Event('click', { bubbles: true }));
+        } else {
+          // 자동 로그인 성공
+          toast({
+            title: "회원가입 성공!",
+            description: "환영합니다.",
+          });
+          navigate("/");
+        }
       }
     } catch (error: any) {
       toast({
