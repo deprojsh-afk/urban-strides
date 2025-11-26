@@ -49,18 +49,18 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#shop" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <button onClick={() => navigate("/shop")} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Shop
-            </a>
-            <a href="#collections" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            </button>
+            <button onClick={() => navigate("/collections")} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Collections
-            </a>
-            <a href="#technology" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            </button>
+            <button onClick={() => navigate("/technology")} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Technology
-            </a>
-            <a href="#about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            </button>
+            <button onClick={() => navigate("/about")} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               About
-            </a>
+            </button>
           </div>
 
           {/* Right Actions */}
@@ -131,18 +131,42 @@ const Navigation = () => {
         {/* Mobile Menu */}
         {isOpen && (
           <div className="md:hidden py-4 space-y-4 border-t border-border">
-            <a href="#shop" className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <button
+              onClick={() => {
+                navigate("/shop");
+                setIsOpen(false);
+              }}
+              className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
               Shop
-            </a>
-            <a href="#collections" className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            </button>
+            <button
+              onClick={() => {
+                navigate("/collections");
+                setIsOpen(false);
+              }}
+              className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
               Collections
-            </a>
-            <a href="#technology" className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            </button>
+            <button
+              onClick={() => {
+                navigate("/technology");
+                setIsOpen(false);
+              }}
+              className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
               Technology
-            </a>
-            <a href="#about" className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            </button>
+            <button
+              onClick={() => {
+                navigate("/about");
+                setIsOpen(false);
+              }}
+              className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
               About
-            </a>
+            </button>
             {user ? (
               <>
                 <button
