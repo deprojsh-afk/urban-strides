@@ -6,12 +6,16 @@ import { ArrowLeft, Heart, ShoppingCart } from "lucide-react";
 import { useWishlist } from "@/hooks/useWishlist";
 import Navigation from "@/components/Navigation";
 import { useState } from "react";
+import { useCart } from "@/hooks/useCart";
+import { useToast } from "@/hooks/use-toast";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const product = id ? getProductById(id) : undefined;
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const { addToCart } = useCart();
+  const { toast } = useToast();
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedColor, setSelectedColor] = useState<string>("");
 
@@ -37,6 +41,51 @@ const ProductDetail = () => {
     } else {
       addToWishlist(product.id, product.name, product.image, product.price);
     }
+  };
+
+  const handleSizeToggle = (size: string) => {
+    setSelectedSize(selectedSize === size ? "" : size);
+  };
+
+  const handleColorToggle = (color: string) => {
+    setSelectedColor(selectedColor === color ? "" : color);
+  };
+
+  const handleAddToCart = () => {
+    const hasSizes = product.sizes && product.sizes.length > 0;
+    const hasColors = product.colors && product.colors.length > 0;
+
+    if (hasSizes && !selectedSize) {
+      toast({
+        title: "사이즈를 선택해주세요",
+        description: "장바구니에 담으려면 사이즈를 선택해야 합니다.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (hasColors && !selectedColor) {
+      toast({
+        title: "색상을 선택해주세요",
+        description: "장바구니에 담으려면 색상을 선택해야 합니다.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    addToCart(
+      product.id,
+      product.name,
+      product.image,
+      product.price,
+      selectedSize,
+      selectedColor
+    );
+
+    toast({
+      title: "장바구니에 담았습니다",
+      description: `${product.name}이(가) 장바구니에 추가되었습니다.`,
+    });
   };
 
   return (
@@ -103,7 +152,7 @@ const ProductDetail = () => {
                         key={size}
                         variant={selectedSize === size ? "default" : "outline"}
                         size="sm"
-                        onClick={() => setSelectedSize(size)}
+                        onClick={() => handleSizeToggle(size)}
                         className="min-w-[60px]"
                       >
                         {size}
@@ -125,7 +174,7 @@ const ProductDetail = () => {
                         key={color}
                         variant={selectedColor === color ? "default" : "outline"}
                         size="sm"
-                        onClick={() => setSelectedColor(color)}
+                        onClick={() => handleColorToggle(color)}
                       >
                         {color}
                       </Button>
@@ -136,7 +185,7 @@ const ProductDetail = () => {
 
               {/* Action Buttons */}
               <div className="flex gap-3 mt-auto">
-                <Button className="flex-1" size="lg">
+                <Button className="flex-1" size="lg" onClick={handleAddToCart}>
                   <ShoppingCart className="mr-2 h-5 w-5" />
                   장바구니에 담기
                 </Button>
