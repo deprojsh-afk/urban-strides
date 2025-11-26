@@ -63,7 +63,7 @@ const ProductCard = ({ id, image, name, category, price, features }: ProductCard
           {features.map((feature) => (
             <span
               key={feature}
-              className="text-[10px] bg-accent/10 text-accent px-2 py-0.5 rounded-sm"
+              className="text-[10px] bg-white/10 text-white px-2 py-0.5 rounded-sm"
             >
               {feature}
             </span>

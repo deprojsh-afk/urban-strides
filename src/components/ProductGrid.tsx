@@ -1,11 +1,23 @@
 import ProductCard from "./ProductCard";
-import shoesImage from "@/assets/product-shoes-1.jpg";
-import leggingsImage from "@/assets/product-leggings-1.jpg";
-import topImage from "@/assets/product-top-1.jpg";
-import jacketImage from "@/assets/product-jacket-1.jpg";
+import watchImage from "@/assets/product-watch.png";
+import shoesImage from "@/assets/product-shoes-2.png";
+import socksImage from "@/assets/product-socks.png";
+import backpackImage from "@/assets/product-backpack.png";
+import vestImage from "@/assets/product-vest.png";
+import visorImage from "@/assets/product-visor.png";
+import bottleImage from "@/assets/product-bottle.png";
+import capImage from "@/assets/product-cap.png";
 
 const ProductGrid = () => {
   const products = [
+    {
+      id: "smart-runner-watch",
+      image: watchImage,
+      name: "Smart Runner Watch",
+      category: "Accessories",
+      price: 249,
+      features: ["GPS Tracking", "Heart Rate", "Waterproof"],
+    },
     {
       id: "velocity-runner",
       image: shoesImage,
@@ -15,60 +27,52 @@ const ProductGrid = () => {
       features: ["Lightweight", "Breathable", "Responsive"],
     },
     {
-      id: "precision-tights",
-      image: leggingsImage,
-      name: "Precision Tights",
-      category: "Bottoms",
-      price: 98,
-      features: ["Compression", "Moisture-Wicking", "Reflective"],
+      id: "performance-socks",
+      image: socksImage,
+      name: "Performance Socks",
+      category: "Accessories",
+      price: 28,
+      features: ["Moisture-Wicking", "Cushioned", "Anti-Blister"],
     },
     {
-      id: "swift-performance-tee",
-      image: topImage,
-      name: "Swift Performance Tee",
-      category: "Tops",
-      price: 68,
-      features: ["Breathable", "Quick-Dry", "Seamless"],
-    },
-    {
-      id: "urban-shield-jacket",
-      image: jacketImage,
-      name: "Urban Shield Jacket",
-      category: "Outerwear",
-      price: 248,
-      features: ["Water-Resistant", "Packable", "Reflective"],
-    },
-    {
-      id: "sprint-elite",
-      image: shoesImage,
-      name: "Sprint Elite",
-      category: "Shoes",
-      price: 219,
-      features: ["Carbon Plate", "Lightweight", "Responsive"],
-    },
-    {
-      id: "motion-long-sleeve",
-      image: topImage,
-      name: "Motion Long Sleeve",
-      category: "Tops",
-      price: 78,
-      features: ["Thermal", "Breathable", "Anti-Odor"],
-    },
-    {
-      id: "endurance-shorts",
-      image: leggingsImage,
-      name: "Endurance Shorts",
-      category: "Bottoms",
-      price: 72,
-      features: ["Lightweight", "4-Way Stretch", "Pocket"],
+      id: "urban-runner-pack",
+      image: backpackImage,
+      name: "Urban Runner Pack",
+      category: "Accessories",
+      price: 168,
+      features: ["Hydration Compatible", "Reflective", "Lightweight"],
     },
     {
       id: "storm-runner-vest",
-      image: jacketImage,
+      image: vestImage,
       name: "Storm Runner Vest",
       category: "Outerwear",
       price: 158,
       features: ["Windproof", "Lightweight", "Packable"],
+    },
+    {
+      id: "solar-visor",
+      image: visorImage,
+      name: "Solar Visor",
+      category: "Accessories",
+      price: 42,
+      features: ["UV Protection", "Adjustable", "Quick-Dry"],
+    },
+    {
+      id: "hydration-bottle",
+      image: bottleImage,
+      name: "Hydration Bottle",
+      category: "Accessories",
+      price: 32,
+      features: ["Soft Flask", "500ml", "Leak-Proof"],
+    },
+    {
+      id: "trail-runner-cap",
+      image: capImage,
+      name: "Trail Runner Cap",
+      category: "Accessories",
+      price: 38,
+      features: ["Water-Repellent", "Breathable", "Adjustable"],
     },
   ];
 
