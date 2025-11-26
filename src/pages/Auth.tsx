@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { signUp, signIn, signUpSchema, signInSchema, type SignUpData, type SignInData } from "@/lib/auth";
+import { signUp, signIn, signUpSchema, signInSchema, resetPasswordForEmail, type SignUpData, type SignInData } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Eye, EyeOff } from "lucide-react";
+import { z } from "zod";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -17,6 +19,9 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showSignInPassword, setShowSignInPassword] = useState(false);
   const [showSignUpPassword, setShowSignUpPassword] = useState(false);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [isResetting, setIsResetting] = useState(false);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -132,6 +137,41 @@ const Auth = () => {
     }
   };
 
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsResetting(true);
+
+    try {
+      const emailSchema = z.string().email({ message: "유효한 이메일 주소를 입력하세요" });
+      const validatedEmail = emailSchema.parse(resetEmail);
+      
+      const { error } = await resetPasswordForEmail(validatedEmail);
+
+      if (error) {
+        toast({
+          title: "비밀번호 재설정 실패",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "이메일 발송 완료",
+          description: "비밀번호 재설정 링크가 이메일로 전송되었습니다.",
+        });
+        setResetDialogOpen(false);
+        setResetEmail("");
+      }
+    } catch (error: any) {
+      toast({
+        title: "입력 오류",
+        description: error.errors?.[0]?.message || "유효한 이메일을 입력해주세요.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -217,6 +257,48 @@ const Auth = () => {
                     "로그인"
                   )}
                 </Button>
+                <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+                  <DialogTrigger asChild>
+                    <button
+                      type="button"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors text-center w-full mt-2"
+                    >
+                      비밀번호를 잊으셨나요?
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>비밀번호 재설정</DialogTitle>
+                      <DialogDescription>
+                        이메일 주소를 입력하시면 비밀번호 재설정 링크를 보내드립니다.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleResetPassword} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="reset-email">이메일</Label>
+                        <Input
+                          id="reset-email"
+                          type="email"
+                          placeholder="name@example.com"
+                          value={resetEmail}
+                          onChange={(e) => setResetEmail(e.target.value)}
+                          disabled={isResetting}
+                          required
+                        />
+                      </div>
+                      <Button type="submit" className="w-full" disabled={isResetting} variant="hero">
+                        {isResetting ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            전송 중...
+                          </>
+                        ) : (
+                          "재설정 링크 보내기"
+                        )}
+                      </Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
               </form>
             </TabsContent>
 
