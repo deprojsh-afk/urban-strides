@@ -17,7 +17,7 @@ const Collections = () => {
     {
       name: "Performance Pro",
       description: "최고의 기능성을 추구하는 프로페셔널 라인",
-      products: products.filter(p => ["Top", "Jacket"].includes(p.category)),
+      products: products.filter(p => p.id === "velocity-pro"),
     },
   ];
 
