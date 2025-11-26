@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CreditCard } from "lucide-react";
+import { CreditCard, ArrowLeft } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 
 const Checkout = () => {
@@ -16,6 +18,7 @@ const Checkout = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isOrdering, setIsOrdering] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<string>("");
 
   const handleOrder = async () => {
     if (!user) {
@@ -35,6 +38,15 @@ const Checkout = () => {
         variant: "destructive",
       });
       navigate("/cart");
+      return;
+    }
+
+    if (!paymentMethod) {
+      toast({
+        title: "결제 수단을 선택해주세요",
+        description: "결제 수단을 선택한 후 진행해주세요.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -114,68 +126,143 @@ const Checkout = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <div className="container mx-auto px-4 py-24 max-w-6xl">
+      <div className="container mx-auto px-4 py-24 max-w-4xl">
         <Card className="border-border bg-card/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-2xl font-display font-bold flex items-center gap-2">
-              <CreditCard className="h-6 w-6" />
-              주문 확인
-            </CardTitle>
-            <CardDescription>주문 내역을 확인하고 결제를 진행하세요</CardDescription>
+          <CardHeader className="border-b border-border">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/cart")}
+                className="h-10 w-10"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <CardTitle className="text-2xl font-display font-bold">
+                주문하기
+              </CardTitle>
+            </div>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-8 pt-6">
+            {/* 결제 수단 섹션 */}
             <div className="space-y-4">
-              <h3 className="font-semibold text-lg">주문 상품</h3>
-              {cartItems.map((item) => (
-                <div key={item.id}>
-                  <div className="flex gap-4 py-4">
-                    <img
-                      src={item.productImage}
-                      alt={item.productName}
-                      className="w-20 h-20 object-cover rounded-lg bg-muted"
-                    />
-                    <div className="flex-1 space-y-1">
-                      <h4 className="font-semibold">{item.productName}</h4>
-                      <div className="text-sm text-muted-foreground space-y-1">
-                        {item.size && <p>사이즈: {item.size}</p>}
-                        {item.color && <p>색상: {item.color}</p>}
-                        <p>수량: {item.quantity}</p>
-                      </div>
+              <h3 className="text-xl font-bold">결제 수단</h3>
+              <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("naver")}
+                    className={`p-4 rounded-lg border-2 transition-all hover:border-primary ${
+                      paymentMethod === "naver"
+                        ? "border-primary bg-primary/5"
+                        : "border-border bg-card"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center h-12">
+                      <span className="text-[#03C75A] font-bold text-lg">NAVER Pay</span>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                  </button>
+                  
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("kakao")}
+                    className={`p-4 rounded-lg border-2 transition-all hover:border-primary ${
+                      paymentMethod === "kakao"
+                        ? "border-primary bg-primary/5"
+                        : "border-border bg-card"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center h-12">
+                      <span className="text-[#FEE500] font-bold text-lg">Kakao Pay</span>
                     </div>
-                  </div>
-                  <Separator />
+                  </button>
+                  
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("toss")}
+                    className={`p-4 rounded-lg border-2 transition-all hover:border-primary ${
+                      paymentMethod === "toss"
+                        ? "border-primary bg-primary/5"
+                        : "border-border bg-card"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center h-12">
+                      <span className="text-[#0064FF] font-bold text-lg">Toss Pay</span>
+                    </div>
+                  </button>
+                  
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("card")}
+                    className={`p-4 rounded-lg border-2 transition-all hover:border-primary ${
+                      paymentMethod === "card"
+                        ? "border-primary bg-primary/5"
+                        : "border-border bg-card"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center h-12">
+                      <span className="font-semibold">신용/체크 카드</span>
+                    </div>
+                  </button>
+                  
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("bank")}
+                    className={`p-4 rounded-lg border-2 transition-all hover:border-primary ${
+                      paymentMethod === "bank"
+                        ? "border-primary bg-primary/5"
+                        : "border-border bg-card"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center h-12">
+                      <span className="font-semibold">무통장 입금</span>
+                    </div>
+                  </button>
+                  
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("phone")}
+                    className={`p-4 rounded-lg border-2 transition-all hover:border-primary ${
+                      paymentMethod === "phone"
+                        ? "border-primary bg-primary/5"
+                        : "border-border bg-card"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center h-12">
+                      <span className="font-semibold">휴대폰 결제</span>
+                    </div>
+                  </button>
                 </div>
-              ))}
+              </RadioGroup>
             </div>
 
-            <div className="space-y-4 pt-4">
-              <Separator />
-              <div className="flex justify-between items-center text-xl font-bold">
-                <span>총 결제 금액</span>
-                <span>${getTotalPrice().toFixed(2)}</span>
-              </div>
-              
-              <div className="flex gap-3">
-                <Button 
-                  variant="outline" 
-                  className="flex-1" 
-                  onClick={() => navigate("/cart")}
-                >
-                  장바구니로 돌아가기
-                </Button>
-                <Button 
-                  className="flex-1" 
-                  size="lg" 
-                  onClick={handleOrder}
-                  disabled={isOrdering}
-                >
-                  {isOrdering ? "주문 처리 중..." : "주문하기"}
-                </Button>
+            <Separator />
+
+            {/* 결제 금액 섹션 */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold">결제 금액</h3>
+              <div className="bg-muted/30 rounded-lg p-6 space-y-3">
+                <div className="flex justify-between text-muted-foreground">
+                  <span>총 상품 금액</span>
+                  <span className="font-semibold">${getTotalPrice().toFixed(2)}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between items-center text-xl font-bold">
+                  <span>최종 결제 금액</span>
+                  <span className="text-primary">${getTotalPrice().toFixed(2)}</span>
+                </div>
               </div>
             </div>
+
+            {/* 결제하기 버튼 */}
+            <Button 
+              className="w-full h-14 text-lg font-bold" 
+              size="lg" 
+              onClick={handleOrder}
+              disabled={isOrdering || !paymentMethod}
+            >
+              {isOrdering ? "결제 처리 중..." : "결제하기"}
+            </Button>
           </CardContent>
         </Card>
       </div>
