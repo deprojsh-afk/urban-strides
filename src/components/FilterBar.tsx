@@ -1,13 +1,14 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 
-const FilterBar = () => {
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+interface FilterBarProps {
+  activeFilters: string[];
+  onFilterChange: (filters: string[]) => void;
+}
 
-  const categories = ["All", "Shoes", "Tops", "Bottoms", "Outerwear"];
-  const colors = ["Black", "White", "Gray", "Blue", "Green"];
-  const features = ["Breathable", "Water-Resistant", "Reflective", "Lightweight"];
+const FilterBar = ({ activeFilters, onFilterChange }: FilterBarProps) => {
+
+  const categories = ["All", "Shoes", "Tops", "Accessories"];
 
   return (
     <div className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-16 z-40">
@@ -23,12 +24,12 @@ const FilterBar = () => {
                 className="text-xs"
                 onClick={() => {
                   if (category === "All") {
-                    setActiveFilters([]);
+                    onFilterChange([]);
                   } else {
-                    setActiveFilters((prev) =>
-                      prev.includes(category)
-                        ? prev.filter((f) => f !== category)
-                        : [...prev, category]
+                    onFilterChange(
+                      activeFilters.includes(category)
+                        ? activeFilters.filter((f) => f !== category)
+                        : [...activeFilters, category]
                     );
                   }
                 }}
@@ -65,7 +66,7 @@ const FilterBar = () => {
               </span>
             ))}
             <button
-              onClick={() => setActiveFilters([])}
+              onClick={() => onFilterChange([])}
               className="text-xs text-muted-foreground hover:text-foreground underline"
             >
               Clear all
