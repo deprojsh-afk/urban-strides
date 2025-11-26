@@ -73,13 +73,16 @@ const ProductGrid = () => {
   ];
 
   return (
-    <section className="py-16 px-4 lg:px-8">
-      <div className="container mx-auto">
-        <div className="mb-8">
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-2">
+    <section className="py-16 px-4 lg:px-8 bg-gradient-to-b from-black/20 to-background relative overflow-hidden">
+      {/* Background subtle gradient effect */}
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-pink-500/5 pointer-events-none" />
+      
+      <div className="container mx-auto relative z-10">
+        <div className="mb-12 text-center">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold mb-3 text-white drop-shadow-lg">
             Performance Collection
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-white/80 max-w-2xl mx-auto text-sm md:text-base">
             Engineered for urban athletes who demand style and function
           </p>
         </div>
