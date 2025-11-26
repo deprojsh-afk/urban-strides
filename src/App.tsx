@@ -9,6 +9,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import Wishlist from "./pages/Wishlist";
 import Cart from "./pages/Cart";
+import Orders from "./pages/Orders";
 import ProductDetail from "./pages/ProductDetail";
 import Shop from "./pages/Shop";
 import Collections from "./pages/Collections";
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/profile" element={<Profile />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/orders" element={<Orders />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/collections" element={<Collections />} />

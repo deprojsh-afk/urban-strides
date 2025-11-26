@@ -1,14 +1,93 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShoppingBag, Plus, Minus, Trash2 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
+import { supabase } from "@/integrations/supabase/client";
 
 const Cart = () => {
   const navigate = useNavigate();
   const { cartItems, updateQuantity, removeFromCart, getTotalPrice } = useCart();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [isOrdering, setIsOrdering] = useState(false);
+
+  const handleOrder = async () => {
+    if (!user) {
+      toast({
+        title: "로그인이 필요합니다",
+        description: "주문하려면 로그인해주세요.",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      toast({
+        title: "장바구니가 비어있습니다",
+        description: "상품을 추가해주세요.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsOrdering(true);
+
+    try {
+      const totalAmount = getTotalPrice();
+
+      const { data: orderData, error: orderError } = await supabase
+        .from("orders")
+        .insert({
+          user_id: user.id,
+          total_amount: totalAmount,
+          status: "pending",
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      const orderItems = cartItems.map((item) => ({
+        order_id: orderData.id,
+        product_name: item.productName,
+        product_image: item.productImage,
+        price: item.price,
+        quantity: item.quantity,
+        size: item.size,
+        color: item.color,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from("order_items")
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      localStorage.removeItem("cart");
+
+      toast({
+        title: "주문이 완료되었습니다",
+        description: "주문 내역에서 확인하실 수 있습니다.",
+      });
+
+      navigate("/orders");
+    } catch (error: any) {
+      toast({
+        title: "주문에 실패했습니다",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsOrdering(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -87,8 +166,13 @@ const Cart = () => {
                     <span>총 금액</span>
                     <span>${getTotalPrice().toFixed(2)}</span>
                   </div>
-                  <Button className="w-full" size="lg">
-                    주문하기
+                  <Button 
+                    className="w-full" 
+                    size="lg" 
+                    onClick={handleOrder}
+                    disabled={isOrdering}
+                  >
+                    {isOrdering ? "주문 중..." : "주문하기"}
                   </Button>
                 </div>
               </div>

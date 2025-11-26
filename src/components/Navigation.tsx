@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { signOut } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ShoppingBag, User, LogOut, Heart } from "lucide-react";
+import { Menu, X, ShoppingBag, User, LogOut, Heart, Package } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
@@ -78,14 +78,24 @@ const Navigation = () => {
             </Button>
 
             {user && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate("/wishlist")}
-                className="hidden md:flex"
-              >
-                <Heart className="h-5 w-5" />
-              </Button>
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate("/wishlist")}
+                  className="hidden md:flex"
+                >
+                  <Heart className="h-5 w-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate("/orders")}
+                  className="hidden md:flex"
+                >
+                  <Package className="h-5 w-5" />
+                </Button>
+              </>
             )}
 
             {user ? (
@@ -177,6 +187,15 @@ const Navigation = () => {
                   className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 >
                   위시리스트
+                </button>
+                <button
+                  onClick={() => {
+                    navigate("/orders");
+                    setIsOpen(false);
+                  }}
+                  className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  주문 내역
                 </button>
                 <button
                   onClick={() => {
