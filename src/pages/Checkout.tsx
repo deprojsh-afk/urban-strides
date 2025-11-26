@@ -60,7 +60,7 @@ const Checkout = () => {
         .insert({
           user_id: user.id,
           total_amount: totalAmount,
-          status: "pending",
+          status: "completed",
         })
         .select()
         .single();
