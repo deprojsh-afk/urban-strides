@@ -18,75 +18,24 @@ interface UseProductGalleryProps {
   color?: string;
 }
 
-const CACHE_PREFIX = 'product_gallery_';
-const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
-
-const getCacheKey = (productId: string, color: string) => 
-  `${CACHE_PREFIX}${productId}_${color}`;
-
-const getFromCache = (productId: string, color: string): string[] | null => {
-  try {
-    const cached = localStorage.getItem(getCacheKey(productId, color));
-    if (cached) {
-      const { images, timestamp } = JSON.parse(cached);
-      if (Date.now() - timestamp < CACHE_EXPIRY) {
-        return images;
-      }
-      localStorage.removeItem(getCacheKey(productId, color));
-    }
-  } catch {
-    // Ignore cache errors
-  }
-  return null;
-};
-
-const saveToCache = (productId: string, color: string, images: string[]) => {
-  try {
-    localStorage.setItem(
-      getCacheKey(productId, color),
-      JSON.stringify({ images, timestamp: Date.now() })
-    );
-  } catch {
-    // Ignore cache errors
-  }
-};
-
 export const useProductGallery = ({
   productId,
   productName,
   category,
   mainImage,
-  color = 'black',
 }: UseProductGalleryProps) => {
-  // front는 기존 이미지 사용, 나머지만 AI 생성
   const generatedAngles: Angle[] = ['side', 'back', 'detail'];
   const allAngles: Angle[] = ['front', 'side', 'back', 'detail'];
   
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(
     allAngles.map((angle) => ({
       angle,
-      url: mainImage, // Default to main image
-      isLoading: false,
+      url: mainImage,
+      isLoading: angle !== 'front', // front는 로딩 아님
     }))
   );
   const [selectedImage, setSelectedImage] = useState(mainImage);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [hasGenerated, setHasGenerated] = useState(false);
-
-  // Check cache on mount
-  useEffect(() => {
-    const cachedImages = getFromCache(productId, color);
-    if (cachedImages && cachedImages.length === 4) {
-      setGalleryImages(
-        allAngles.map((angle, index) => ({
-          angle,
-          url: cachedImages[index],
-          isLoading: false,
-        }))
-      );
-      setHasGenerated(true);
-    }
-  }, [productId, color]);
 
   // 기존 이미지를 base64로 변환
   const getImageAsDataUrl = useCallback(async (imageUrl: string): Promise<string> => {
@@ -108,7 +57,7 @@ export const useProductGallery = ({
   const generateImage = useCallback(async (angle: Angle, existingImageBase64: string): Promise<string | null> => {
     try {
       const { data, error } = await supabase.functions.invoke('generate-product-images', {
-        body: { productName, category, angle, existingImageUrl: existingImageBase64 },
+        body: { productId, productName, category, angle, existingImageUrl: existingImageBase64 },
       });
 
       if (error) {
@@ -121,93 +70,88 @@ export const useProductGallery = ({
       console.error(`Failed to generate ${angle} image:`, err);
       return null;
     }
-  }, [productName, category]);
+  }, [productId, productName, category]);
 
-  const generateAllImages = useCallback(async () => {
-    if (isGenerating || hasGenerated) return;
+  // 마운트 시 DB에서 이미지 확인 및 자동 생성
+  useEffect(() => {
+    const loadOrGenerateImages = async () => {
+      // 1. DB에서 기존 이미지 확인
+      const { data: existingImages, error } = await supabase
+        .from('product_gallery_images')
+        .select('angle, image_url')
+        .eq('product_id', productId);
 
-    // Check cache first
-    const cachedImages = getFromCache(productId, color);
-    if (cachedImages && cachedImages.length === 4) {
-      setGalleryImages(
-        allAngles.map((angle, index) => ({
-          angle,
-          url: cachedImages[index],
-          isLoading: false,
-        }))
-      );
-      setHasGenerated(true);
-      return;
-    }
-
-    setIsGenerating(true);
-
-    // front 이미지는 기존 이미지 그대로, 나머지만 로딩 상태로
-    setGalleryImages(
-      allAngles.map((angle) => ({
-        angle,
-        url: mainImage,
-        isLoading: angle !== 'front',
-      }))
-    );
-
-    // 기존 이미지를 base64로 변환
-    let existingImageBase64: string;
-    try {
-      existingImageBase64 = await getImageAsDataUrl(mainImage);
-    } catch {
-      console.error('Failed to load existing image');
-      setIsGenerating(false);
-      setGalleryImages(
-        allAngles.map((angle) => ({
-          angle,
-          url: mainImage,
-          isLoading: false,
-          error: angle !== 'front' ? 'Failed to load base image' : undefined,
-        }))
-      );
-      return;
-    }
-
-    // Generate images sequentially to avoid rate limits (front는 생성하지 않음)
-    const generatedUrls: string[] = [mainImage]; // front는 기존 이미지
-    
-    for (const angle of generatedAngles) {
-      const imageUrl = await generateImage(angle, existingImageBase64);
-      
-      if (imageUrl) {
-        generatedUrls.push(imageUrl);
-        setGalleryImages((prev) =>
-          prev.map((img) =>
-            img.angle === angle
-              ? { ...img, url: imageUrl, isLoading: false }
-              : img
-          )
-        );
-      } else {
-        generatedUrls.push(mainImage);
-        setGalleryImages((prev) =>
-          prev.map((img) =>
-            img.angle === angle
-              ? { ...img, url: mainImage, isLoading: false, error: 'Failed to generate' }
-              : img
-          )
-        );
+      if (error) {
+        console.error('Failed to load gallery images:', error);
       }
-    }
 
-    // Cache the results
-    saveToCache(productId, color, generatedUrls);
-    setIsGenerating(false);
-    setHasGenerated(true);
-  }, [isGenerating, hasGenerated, productId, color, mainImage, generateImage, getImageAsDataUrl]);
+      // 2. 이미지가 이미 있으면 바로 표시
+      if (existingImages && existingImages.length >= 3) {
+        const imageMap = new Map(existingImages.map(img => [img.angle, img.image_url]));
+        setGalleryImages(
+          allAngles.map((angle) => ({
+            angle,
+            url: angle === 'front' ? mainImage : (imageMap.get(angle) || mainImage),
+            isLoading: false,
+          }))
+        );
+        return;
+      }
+
+      // 3. 이미지가 없으면 생성 시작
+      setIsGenerating(true);
+
+      // 기존 이미지를 base64로 변환
+      let existingImageBase64: string;
+      try {
+        existingImageBase64 = await getImageAsDataUrl(mainImage);
+      } catch {
+        console.error('Failed to load existing image');
+        setIsGenerating(false);
+        setGalleryImages(
+          allAngles.map((angle) => ({
+            angle,
+            url: mainImage,
+            isLoading: false,
+            error: angle !== 'front' ? 'Failed to load base image' : undefined,
+          }))
+        );
+        return;
+      }
+
+      // 4. 이미지 순차 생성 (rate limit 방지)
+      for (const angle of generatedAngles) {
+        const imageUrl = await generateImage(angle, existingImageBase64);
+        
+        if (imageUrl) {
+          setGalleryImages((prev) =>
+            prev.map((img) =>
+              img.angle === angle
+                ? { ...img, url: imageUrl, isLoading: false }
+                : img
+            )
+          );
+        } else {
+          setGalleryImages((prev) =>
+            prev.map((img) =>
+              img.angle === angle
+                ? { ...img, url: mainImage, isLoading: false, error: 'Failed to generate' }
+                : img
+            )
+          );
+        }
+      }
+
+      setIsGenerating(false);
+    };
+
+    loadOrGenerateImages();
+  }, [productId, mainImage, getImageAsDataUrl, generateImage]);
 
   return {
     galleryImages,
     selectedImage,
     setSelectedImage,
-    generateAllImages,
     isGenerating,
-    hasGenerated,
   };
 };
