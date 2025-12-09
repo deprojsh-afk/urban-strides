@@ -10,33 +10,17 @@ interface GenerateRequest {
   category: string;
   color?: string;
   angle: 'front' | 'side' | 'back' | 'detail';
+  existingImageUrl: string;
 }
 
-const getPromptForAngle = (productName: string, category: string, color: string, angle: string): string => {
-  const baseStyle = "professional product photography, studio lighting, white background, high quality, 4K, clean minimalist style";
-  
-  const categoryPrompts: Record<string, Record<string, string>> = {
-    Shoes: {
-      front: `${color} running shoes ${productName}, front view, ${baseStyle}`,
-      side: `${color} running shoes ${productName}, side profile view showing sole and design, ${baseStyle}`,
-      back: `${color} running shoes ${productName}, back heel view, ${baseStyle}`,
-      detail: `${color} running shoes ${productName}, close-up of sole texture and material details, ${baseStyle}`,
-    },
-    Tops: {
-      front: `${color} athletic running shirt ${productName}, front view on mannequin, ${baseStyle}`,
-      side: `${color} athletic running shirt ${productName}, side view showing fit, ${baseStyle}`,
-      back: `${color} athletic running shirt ${productName}, back view, ${baseStyle}`,
-      detail: `${color} athletic running shirt ${productName}, close-up of fabric texture and stitching, ${baseStyle}`,
-    },
-    Accessories: {
-      front: `${color} ${productName.toLowerCase()} sports accessory, front view, ${baseStyle}`,
-      side: `${color} ${productName.toLowerCase()} sports accessory, side angle view, ${baseStyle}`,
-      back: `${color} ${productName.toLowerCase()} sports accessory, back view, ${baseStyle}`,
-      detail: `${color} ${productName.toLowerCase()} sports accessory, close-up detail shot, ${baseStyle}`,
-    },
+const getEditPromptForAngle = (productName: string, category: string, angle: string): string => {
+  const prompts: Record<string, string> = {
+    side: `Show this exact same ${category.toLowerCase()} product from a side angle view. Keep the exact same design, colors, materials, and style. Professional product photography, studio lighting, white background, high quality.`,
+    back: `Show this exact same ${category.toLowerCase()} product from the back/rear view. Maintain the exact same design, colors, materials, and style. Professional product photography, studio lighting, white background, high quality.`,
+    detail: `Show a close-up detail shot of this exact same ${category.toLowerCase()} product, focusing on the texture, materials, and craftsmanship. Keep the same design and colors. Professional product photography, studio lighting, white background, high quality.`,
   };
 
-  return categoryPrompts[category]?.[angle] || `${color} ${productName} ${angle} view, ${baseStyle}`;
+  return prompts[angle] || `Show this product from a different angle. Keep the same design and style.`;
 };
 
 serve(async (req) => {
@@ -45,11 +29,11 @@ serve(async (req) => {
   }
 
   try {
-    const { productName, category, color = 'black', angle }: GenerateRequest = await req.json();
+    const { productName, category, angle, existingImageUrl }: GenerateRequest = await req.json();
     
-    if (!productName || !category || !angle) {
+    if (!productName || !category || !angle || !existingImageUrl) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: productName, category, angle' }),
+        JSON.stringify({ error: 'Missing required fields: productName, category, angle, existingImageUrl' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -63,8 +47,8 @@ serve(async (req) => {
       );
     }
 
-    const prompt = getPromptForAngle(productName, category, color, angle);
-    console.log(`Generating image for: ${productName} - ${angle} view`);
+    const prompt = getEditPromptForAngle(productName, category, angle);
+    console.log(`Generating ${angle} view for: ${productName} based on existing image`);
     console.log(`Prompt: ${prompt}`);
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -78,7 +62,18 @@ serve(async (req) => {
         messages: [
           {
             role: 'user',
-            content: prompt,
+            content: [
+              {
+                type: 'text',
+                text: prompt,
+              },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: existingImageUrl,
+                },
+              },
+            ],
           },
         ],
         modalities: ['image', 'text'],

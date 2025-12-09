@@ -58,10 +58,12 @@ export const useProductGallery = ({
   mainImage,
   color = 'black',
 }: UseProductGalleryProps) => {
-  const angles: Angle[] = ['front', 'side', 'back', 'detail'];
+  // front는 기존 이미지 사용, 나머지만 AI 생성
+  const generatedAngles: Angle[] = ['side', 'back', 'detail'];
+  const allAngles: Angle[] = ['front', 'side', 'back', 'detail'];
   
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(
-    angles.map((angle) => ({
+    allAngles.map((angle) => ({
       angle,
       url: mainImage, // Default to main image
       isLoading: false,
@@ -76,7 +78,7 @@ export const useProductGallery = ({
     const cachedImages = getFromCache(productId, color);
     if (cachedImages && cachedImages.length === 4) {
       setGalleryImages(
-        angles.map((angle, index) => ({
+        allAngles.map((angle, index) => ({
           angle,
           url: cachedImages[index],
           isLoading: false,
@@ -86,10 +88,27 @@ export const useProductGallery = ({
     }
   }, [productId, color]);
 
-  const generateImage = useCallback(async (angle: Angle): Promise<string | null> => {
+  // 기존 이미지를 base64로 변환
+  const getImageAsDataUrl = useCallback(async (imageUrl: string): Promise<string> => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('Failed to convert image to base64:', error);
+      throw error;
+    }
+  }, []);
+
+  const generateImage = useCallback(async (angle: Angle, existingImageBase64: string): Promise<string | null> => {
     try {
       const { data, error } = await supabase.functions.invoke('generate-product-images', {
-        body: { productName, category, color, angle },
+        body: { productName, category, angle, existingImageUrl: existingImageBase64 },
       });
 
       if (error) {
@@ -102,7 +121,7 @@ export const useProductGallery = ({
       console.error(`Failed to generate ${angle} image:`, err);
       return null;
     }
-  }, [productName, category, color]);
+  }, [productName, category]);
 
   const generateAllImages = useCallback(async () => {
     if (isGenerating || hasGenerated) return;
@@ -111,7 +130,7 @@ export const useProductGallery = ({
     const cachedImages = getFromCache(productId, color);
     if (cachedImages && cachedImages.length === 4) {
       setGalleryImages(
-        angles.map((angle, index) => ({
+        allAngles.map((angle, index) => ({
           angle,
           url: cachedImages[index],
           isLoading: false,
@@ -123,21 +142,38 @@ export const useProductGallery = ({
 
     setIsGenerating(true);
 
-    // Set all to loading
+    // front 이미지는 기존 이미지 그대로, 나머지만 로딩 상태로
     setGalleryImages(
-      angles.map((angle) => ({
+      allAngles.map((angle) => ({
         angle,
         url: mainImage,
-        isLoading: true,
+        isLoading: angle !== 'front',
       }))
     );
 
-    // Generate images sequentially to avoid rate limits
-    const generatedUrls: string[] = [];
+    // 기존 이미지를 base64로 변환
+    let existingImageBase64: string;
+    try {
+      existingImageBase64 = await getImageAsDataUrl(mainImage);
+    } catch {
+      console.error('Failed to load existing image');
+      setIsGenerating(false);
+      setGalleryImages(
+        allAngles.map((angle) => ({
+          angle,
+          url: mainImage,
+          isLoading: false,
+          error: angle !== 'front' ? 'Failed to load base image' : undefined,
+        }))
+      );
+      return;
+    }
+
+    // Generate images sequentially to avoid rate limits (front는 생성하지 않음)
+    const generatedUrls: string[] = [mainImage]; // front는 기존 이미지
     
-    for (let i = 0; i < angles.length; i++) {
-      const angle = angles[i];
-      const imageUrl = await generateImage(angle);
+    for (const angle of generatedAngles) {
+      const imageUrl = await generateImage(angle, existingImageBase64);
       
       if (imageUrl) {
         generatedUrls.push(imageUrl);
@@ -164,7 +200,7 @@ export const useProductGallery = ({
     saveToCache(productId, color, generatedUrls);
     setIsGenerating(false);
     setHasGenerated(true);
-  }, [isGenerating, hasGenerated, productId, color, mainImage, generateImage, angles]);
+  }, [isGenerating, hasGenerated, productId, color, mainImage, generateImage, getImageAsDataUrl]);
 
   return {
     galleryImages,
