@@ -8,6 +8,7 @@ import Navigation from "@/components/Navigation";
 import { useState } from "react";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
+import ProductGallery from "@/components/ProductGallery";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -103,14 +104,14 @@ const ProductDetail = () => {
           </Button>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-            {/* 제품 이미지 */}
-            <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="h-full w-full object-cover"
-              />
-            </div>
+            {/* 제품 이미지 갤러리 */}
+            <ProductGallery
+              productId={product.id}
+              productName={product.name}
+              category={product.category}
+              mainImage={product.image}
+              selectedColor={selectedColor}
+            />
 
             {/* 제품 정보 */}
             <div className="flex flex-col">
