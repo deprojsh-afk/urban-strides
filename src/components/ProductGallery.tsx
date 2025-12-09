@@ -68,16 +68,11 @@ const ProductGallery = ({
                 </div>
               </div>
             ) : (
-              <>
-                <img
-                  src={image.url}
-                  alt={`${productName} ${angleLabels[image.angle]}`}
-                  className="h-full w-full object-cover"
-                />
-                <span className="absolute bottom-0 left-0 right-0 bg-background/80 px-1 py-0.5 text-center text-xs text-foreground">
-                  {angleLabels[image.angle]}
-                </span>
-              </>
+              <img
+                src={image.url}
+                alt={`${productName} ${angleLabels[image.angle]}`}
+                className="h-full w-full object-cover"
+              />
             )}
           </button>
         ))}
