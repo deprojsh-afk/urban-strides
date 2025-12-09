@@ -2,3 +2,6 @@ project_id = "aprcgsohmxxwyfwomesf"
 
 [functions.generate-product-images]
 verify_jwt = false
+
+[functions.batch-generate-gallery]
+verify_jwt = false
