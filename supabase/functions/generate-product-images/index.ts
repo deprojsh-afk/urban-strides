@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -6,14 +7,14 @@ const corsHeaders = {
 };
 
 interface GenerateRequest {
+  productId: string;
   productName: string;
   category: string;
-  color?: string;
   angle: 'front' | 'side' | 'back' | 'detail';
   existingImageUrl: string;
 }
 
-const getEditPromptForAngle = (productName: string, category: string, angle: string): string => {
+const getEditPromptForAngle = (category: string, angle: string): string => {
   const prompts: Record<string, string> = {
     side: `Show this exact same ${category.toLowerCase()} product from a side angle view. Keep the exact same design, colors, materials, and style. Professional product photography, studio lighting, white background, high quality.`,
     back: `Show this exact same ${category.toLowerCase()} product from the back/rear view. Maintain the exact same design, colors, materials, and style. Professional product photography, studio lighting, white background, high quality.`,
@@ -29,16 +30,19 @@ serve(async (req) => {
   }
 
   try {
-    const { productName, category, angle, existingImageUrl }: GenerateRequest = await req.json();
+    const { productId, productName, category, angle, existingImageUrl }: GenerateRequest = await req.json();
     
-    if (!productName || !category || !angle || !existingImageUrl) {
+    if (!productId || !productName || !category || !angle || !existingImageUrl) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: productName, category, angle, existingImageUrl' }),
+        JSON.stringify({ error: 'Missing required fields: productId, productName, category, angle, existingImageUrl' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
     if (!LOVABLE_API_KEY) {
       console.error('LOVABLE_API_KEY is not configured');
       return new Response(
@@ -47,7 +51,26 @@ serve(async (req) => {
       );
     }
 
-    const prompt = getEditPromptForAngle(productName, category, angle);
+    // Initialize Supabase client for DB operations
+    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+
+    // Check if image already exists in DB
+    const { data: existingImage } = await supabase
+      .from('product_gallery_images')
+      .select('image_url')
+      .eq('product_id', productId)
+      .eq('angle', angle)
+      .single();
+
+    if (existingImage) {
+      console.log(`Image for ${productName} - ${angle} already exists in DB`);
+      return new Response(
+        JSON.stringify({ imageUrl: existingImage.image_url, angle, cached: true }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const prompt = getEditPromptForAngle(category, angle);
     console.log(`Generating ${angle} view for: ${productName} based on existing image`);
     console.log(`Prompt: ${prompt}`);
 
@@ -112,6 +135,22 @@ serve(async (req) => {
         JSON.stringify({ error: 'No image generated' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    // Save to database for permanent storage
+    const { error: insertError } = await supabase
+      .from('product_gallery_images')
+      .insert({
+        product_id: productId,
+        angle: angle,
+        image_url: imageUrl,
+      });
+
+    if (insertError) {
+      console.error('Failed to save image to DB:', insertError);
+      // Still return the image even if DB save fails
+    } else {
+      console.log(`Saved ${angle} image for ${productName} to database`);
     }
 
     console.log(`Successfully generated ${angle} image for ${productName}`);

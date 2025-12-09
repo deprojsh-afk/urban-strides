@@ -85,6 +85,30 @@ export type Database = {
         }
         Relationships: []
       }
+      product_gallery_images: {
+        Row: {
+          angle: string
+          created_at: string
+          id: string
+          image_url: string
+          product_id: string
+        }
+        Insert: {
+          angle: string
+          created_at?: string
+          id?: string
+          image_url: string
+          product_id: string
+        }
+        Update: {
+          angle?: string
+          created_at?: string
+          id?: string
+          image_url?: string
+          product_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           birth_date: string | null
