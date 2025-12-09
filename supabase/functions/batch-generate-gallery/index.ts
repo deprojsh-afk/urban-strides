@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { decode } from "https://deno.land/std@0.168.0/encoding/base64.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -27,6 +28,12 @@ const getEditPromptForAngle = (category: string, angle: string): string => {
     detail: `Show a close-up detail shot of this exact same ${category.toLowerCase()} product, focusing on the texture, materials, and craftsmanship. Keep the same design and colors. Professional product photography, studio lighting, white background, high quality.`,
   };
   return prompts[angle] || `Show this product from a different angle.`;
+};
+
+// Convert base64 data URL to Uint8Array
+const base64ToUint8Array = (base64: string): Uint8Array => {
+  const base64Data = base64.includes(',') ? base64.split(',')[1] : base64;
+  return decode(base64Data);
 };
 
 serve(async (req) => {
@@ -128,14 +135,39 @@ serve(async (req) => {
           }
 
           const data = await response.json();
-          const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+          const base64ImageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
 
-          if (!imageUrl) {
+          if (!base64ImageUrl) {
             console.error(`No image in response for ${product.name} - ${angle}`);
             results.push({ productId: product.id, angle, status: 'failed' });
             failed++;
             continue;
           }
+
+          // Upload to Supabase Storage
+          const fileName = `${product.id}/${angle}.png`;
+          const imageBytes = base64ToUint8Array(base64ImageUrl);
+          
+          const { error: uploadError } = await supabase.storage
+            .from('product-gallery')
+            .upload(fileName, imageBytes, {
+              contentType: 'image/png',
+              upsert: true,
+            });
+
+          if (uploadError) {
+            console.error(`Storage upload error for ${product.name} - ${angle}:`, uploadError);
+            results.push({ productId: product.id, angle, status: 'failed' });
+            failed++;
+            continue;
+          }
+
+          // Get public URL
+          const { data: publicUrlData } = supabase.storage
+            .from('product-gallery')
+            .getPublicUrl(fileName);
+
+          const publicUrl = publicUrlData.publicUrl;
 
           // Save to database
           const { error: insertError } = await supabase
@@ -143,7 +175,7 @@ serve(async (req) => {
             .insert({
               product_id: product.id,
               angle: angle,
-              image_url: imageUrl,
+              image_url: publicUrl,
             });
 
           if (insertError) {
@@ -151,7 +183,7 @@ serve(async (req) => {
             results.push({ productId: product.id, angle, status: 'failed' });
             failed++;
           } else {
-            console.log(`✓ ${product.name} - ${angle} generated and saved`);
+            console.log(`✓ ${product.name} - ${angle} generated and saved to storage`);
             results.push({ productId: product.id, angle, status: 'generated' });
             generated++;
           }

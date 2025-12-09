@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { decode } from "https://deno.land/std@0.168.0/encoding/base64.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,6 +23,13 @@ const getEditPromptForAngle = (category: string, angle: string): string => {
   };
 
   return prompts[angle] || `Show this product from a different angle. Keep the same design and style.`;
+};
+
+// Convert base64 data URL to Uint8Array
+const base64ToUint8Array = (base64: string): Uint8Array => {
+  // Remove data URL prefix if present
+  const base64Data = base64.includes(',') ? base64.split(',')[1] : base64;
+  return decode(base64Data);
 };
 
 serve(async (req) => {
@@ -51,7 +59,7 @@ serve(async (req) => {
       );
     }
 
-    // Initialize Supabase client for DB operations
+    // Initialize Supabase client for DB and Storage operations
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
     // Check if image already exists in DB
@@ -72,7 +80,6 @@ serve(async (req) => {
 
     const prompt = getEditPromptForAngle(category, angle);
     console.log(`Generating ${angle} view for: ${productName} based on existing image`);
-    console.log(`Prompt: ${prompt}`);
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -127,9 +134,9 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    const base64ImageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
 
-    if (!imageUrl) {
+    if (!base64ImageUrl) {
       console.error('No image in response:', JSON.stringify(data));
       return new Response(
         JSON.stringify({ error: 'No image generated' }),
@@ -137,18 +144,44 @@ serve(async (req) => {
       );
     }
 
-    // Save to database for permanent storage
+    // Upload to Supabase Storage
+    const fileName = `${productId}/${angle}.png`;
+    const imageBytes = base64ToUint8Array(base64ImageUrl);
+    
+    const { error: uploadError } = await supabase.storage
+      .from('product-gallery')
+      .upload(fileName, imageBytes, {
+        contentType: 'image/png',
+        upsert: true,
+      });
+
+    if (uploadError) {
+      console.error('Storage upload error:', uploadError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to upload image to storage' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Get public URL
+    const { data: publicUrlData } = supabase.storage
+      .from('product-gallery')
+      .getPublicUrl(fileName);
+
+    const publicUrl = publicUrlData.publicUrl;
+    console.log(`Uploaded to storage: ${publicUrl}`);
+
+    // Save URL to database
     const { error: insertError } = await supabase
       .from('product_gallery_images')
       .insert({
         product_id: productId,
         angle: angle,
-        image_url: imageUrl,
+        image_url: publicUrl,
       });
 
     if (insertError) {
       console.error('Failed to save image to DB:', insertError);
-      // Still return the image even if DB save fails
     } else {
       console.log(`Saved ${angle} image for ${productName} to database`);
     }
@@ -156,7 +189,7 @@ serve(async (req) => {
     console.log(`Successfully generated ${angle} image for ${productName}`);
 
     return new Response(
-      JSON.stringify({ imageUrl, angle }),
+      JSON.stringify({ imageUrl: publicUrl, angle }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
